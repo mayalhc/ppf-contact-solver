@@ -3,6 +3,22 @@
 # Review: Ryoichi Ando (ryoichi.ando@zozo.com)
 # License: Apache v2.0
 
+# --- [추가] 애드온 구동 필수 패키지(cbor2) 자동 검사 및 설치 로직 ---
+import sys
+import subprocess
+
+try:
+    import cbor2
+except ImportError:
+    print("[PPF Solver] 내부 연동에 필요한 cbor2 패키지가 없어 자동 설치를 시작합니다...")
+    try:
+        # 블렌더 자체 내장 파이썬 환경(sys.executable)에 pip로 cbor2 설치
+        subprocess.run([sys.executable, "-m", "pip", "install", "cbor2"], check=True)
+        print("[PPF Solver] cbor2 패키지 설치 성공!")
+    except Exception as e:
+        print(f"[PPF Solver] cbor2 자동 설치 실패 (관리자 권한이 필요할 수 있습니다): {e}")
+# ----------------------------------------------------------------
+
 from bpy.app.handlers import persistent  # pyright: ignore
 
 from .ui import main_panel, console, solver, state
