@@ -1,3 +1,56 @@
+### ⚠️ Troubleshooting: Blender Port 9090 Error
+If you encounter a **Port 9090 error** when starting the solver in Blender, follow these steps to fix it:
+
+1. Create a new text file and save it as **`fix_9090_error.bat`** inside your server directory.
+2. Copy and paste the batch script below into that file.
+3. **Run the `.bat` file**. (It will automatically request Administrator privileges to unlock the port and launch the server).
+
+
+
+
+@echo off
+:: Force Administrator Privileges Script
+REM --> Check for permissions
+VBOXMANAGE >nul 2>&1
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    goto :admin
+) else (
+    goto :UACPrompt
+)
+
+:UACPrompt
+echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+echo UAC.ShellExecute "cmd.exe", "/c %~s0 %*", "", "runas", 1 >> "%temp%\getadmin.vbs"
+"%temp%\getadmin.vbs"
+del "%temp%\getadmin.vbs"
+exit /B
+
+:admin
+pushd "%CD%"
+CD /D "%~dp0"
+
+:: --------------------------------------------------
+:: MAIN CORE CODE EXECUTION
+:: --------------------------------------------------
+echo [1/3] Unlocking Windows ports (stopping winnat)...
+net stop winnat
+
+echo [2/3] Starting PPF Contact Solver server engine...
+echo DO NOT CLOSE THIS WINDOW! Waiting for Blender connection...
+echo --------------------------------------------------
+:: Run JupyterLab and Blender 9090 Port simultaneously
+call start.bat --blender-port 9090
+echo --------------------------------------------------
+
+echo [3/3] Restoring Windows network (starting winnat)...
+net start winnat
+
+
+
+
+
+
 # ZOZO's Contact Solver 🫶
 
 A contact solver for physics-based simulations
